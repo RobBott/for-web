@@ -11,6 +11,27 @@ import { State } from "..";
 
 import { AbstractStore } from ".";
 
+export type ThemePresetDefinition = {
+  id: string;
+  name: string;
+  accent: string;
+  surface: string;
+  surfaceLow: string;
+  surfaceHigh: string;
+  onSurface: string;
+  css?: string;
+};
+
+export const THEME_PRESETS: ThemePresetDefinition[] = [
+  { id: "default", name: "Stoat Default", accent: "#5470ec", surface: "#111217", surfaceLow: "#161820", surfaceHigh: "#1e202b", onSurface: "#e2e8f0" },
+  { id: "oled", name: "Midnight OLED", accent: "#38bdf8", surface: "#000000", surfaceLow: "#080a0f", surfaceHigh: "#11141d", onSurface: "#f8fafc" },
+  { id: "nord", name: "Nord Frost", accent: "#88c0d0", surface: "#2e3440", surfaceLow: "#3b4252", surfaceHigh: "#434c5e", onSurface: "#eceff4" },
+  { id: "dracula", name: "Dracula", accent: "#bd93f9", surface: "#282a36", surfaceLow: "#1e1f29", surfaceHigh: "#343746", onSurface: "#f8f8f2" },
+  { id: "catppuccin", name: "Catppuccin Mocha", accent: "#cba6f7", surface: "#1e1e2e", surfaceLow: "#181825", surfaceHigh: "#313244", onSurface: "#cdd6f4" },
+  { id: "synthwave", name: "Synthwave Neon", accent: "#ff2a85", surface: "#0d0914", surfaceLow: "#160f24", surfaceHigh: "#231738", onSurface: "#fdf2f8" },
+  { id: "emerald", name: "Forest Emerald", accent: "#10b981", surface: "#091410", surfaceLow: "#0f221b", surfaceHigh: "#163026", onSurface: "#ecfdf5" },
+];
+
 export type TypeTheme = {
   /**
    * Base theme preset
@@ -73,6 +94,7 @@ export type TypeTheme = {
    * Spacing between message groups
    */
   messageGroupSpacing: number;
+  themePreset?: string;
 };
 
 export type SelectedTheme = Pick<
@@ -144,6 +166,7 @@ export class Theme extends AbstractStore<"theme", TypeTheme> {
       blur: true,
       messageSize: 14,
       messageGroupSpacing: 12,
+      themePreset: "default",
     };
   }
 
@@ -198,6 +221,9 @@ export class Theme extends AbstractStore<"theme", TypeTheme> {
 
     if (typeof input.messageGroupSpacing === "number") {
       data.messageGroupSpacing = input.messageGroupSpacing;
+    }
+    if (typeof input.themePreset === "string") {
+      data.themePreset = input.themePreset;
     }
 
     if (
@@ -386,5 +412,24 @@ export class Theme extends AbstractStore<"theme", TypeTheme> {
    */
   set messageGroupSpacing(space: number) {
     this.set("messageGroupSpacing", space);
+  }
+}
+
+  /**
+   * Get current theme preset id
+   */
+  get themePreset() {
+    return this.get().themePreset ?? "default";
+  }
+
+  /**
+   * Set active theme preset and update Material accent
+   */
+  setThemePreset(presetId: string) {
+    this.set("themePreset", presetId);
+    const found = THEME_PRESETS.find((p) => p.id === presetId);
+    if (found) {
+      this.set("m3Accent", found.accent);
+    }
   }
 }

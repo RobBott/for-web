@@ -11,6 +11,7 @@ import {
   UnicodeEmojiPacks,
 } from "@revolt/markdown/emoji/UnicodeEmoji";
 import { useState } from "@revolt/state";
+import { THEME_PRESETS } from "@revolt/state/stores/Theme";
 import {
   Avatar,
   Button,
@@ -55,13 +56,25 @@ export function AppearanceMenu() {
 
   return (
     <Column gap="lg">
-      <MessagePreview>
-        <Text>
-          Welcome to the new appearance menu, custom themes are not available
-          just yet but we are looking for feedback on how to best implement
-          them!
+      <Column>
+        <Text class="title" size="small">
+          <Trans>Theme Presets</Trans>
         </Text>
-      </MessagePreview>
+        <Row gap="xs" wrap>
+          <For each={THEME_PRESETS}>
+            {(preset) => (
+              <Button
+                size="xs"
+                group="standard"
+                groupActive={state.theme.themePreset === preset.id}
+                onPress={() => state.theme.setThemePreset(preset.id)}
+              >
+                {preset.name}
+              </Button>
+            )}
+          </For>
+        </Row>
+      </Column>
 
       <Column>
         <Text class="title" size="small">

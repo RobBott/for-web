@@ -1,3 +1,18 @@
+## Community Enhancements & Fixes in This Fork (RobBott/for-web)
+
+This repository is part of the community-enhanced Stoat stack alongside [RobBott/stoatchat](https://github.com/RobBott/stoatchat) and [RobBott/self-hosted](https://github.com/RobBott/self-hosted):
+
+- **Native Theme Presets in Settings & Server Context Menu (`ServerContextMenu.tsx`, `AppearanceMenu.tsx`, `Theme.ts`, `LoadTheme.tsx`):**
+  - Switch between built-in theme presets (*Stoat Default*, *Midnight OLED*, *Nord Frost*, *Dracula*, *Catppuccin Mocha*, *Synthwave Neon*, *Forest Emerald*) directly from **User Settings → Appearance** or by **pressing-and-holding / right-clicking on any Server icon → Change theme**.
+- **1-Tap Quick Reaction Bar & Favorite Emoji Memory (`MessageContextMenu.tsx`):**
+  - Adds a 1-tap quick reaction bar at the top of the message context menu with active reaction highlighting and automatic memory of your most recently used emojis.
+- **Mobile Pinch-to-Zoom & Double-Tap Zoom (`ImageViewer.tsx`):**
+  - Adds native 2-finger pinch-to-zoom and double-tap zoom gestures for mobile touchscreens inside the full-screen image viewer.
+- **iOS Safari Video Thumbnail Preloading (`Attachment.tsx`):**
+  - Appends `#t=0.001` to `<video preload="metadata">` attachment sources so iPhone and iPad Safari render the first video frame instead of an empty black box.
+
+---
+
 <div align="center">
 <h1>
   Stoat Frontend

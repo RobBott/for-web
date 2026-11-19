@@ -95,7 +95,7 @@ export function Attachment(props: { file: File; message?: Message }) {
             controls
             playsinline
             preload="metadata"
-            src={props.file.originalUrl}
+            src={`${props.file.originalUrl}#t=0.001`}
             use:floating={{
               contextMenu: () => (
                 <MessageContextMenu

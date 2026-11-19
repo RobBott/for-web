@@ -38,6 +38,29 @@ import {
 /**
  * Context menu for messages
  */
+const DEFAULT_QUICK_EMOJIS = ["❤️", "😂", "👍", "🔥", "😮", "😢"];
+
+function getQuickEmojis(): string[] {
+  try {
+    const raw = localStorage.getItem("stoat_fav_emojis");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const merged = [...parsed, ...DEFAULT_QUICK_EMOJIS];
+        return [...new Set(merged)].slice(0, 6);
+      }
+    }
+  } catch {}
+  return DEFAULT_QUICK_EMOJIS;
+}
+
+function recordFavoriteEmoji(emoji: string) {
+  try {
+    const current = getQuickEmojis().filter((e) => e !== emoji);
+    localStorage.setItem("stoat_fav_emojis", JSON.stringify([emoji, ...current].slice(0, 6)));
+  } catch {}
+}
+
 export function MessageContextMenu(props: {
   message?: Message;
   reactPicker?: Accessor<MediaPickerProps | undefined>;
@@ -287,6 +310,40 @@ export function MessageContextMenu(props: {
         <ContextMenuDivider />
       </Show>
       <Show when={props.message}>
+        <Show when={props.message?.channel?.havePermission("React")}>
+          <div style={{ display: "flex", "align-items": "center", "justify-content": "space-around", padding: "4px 10px 6px", gap: "4px" }}>
+            <For each={getQuickEmojis()}>
+              {(emoji) => {
+                const hasReacted = () => props.message!.reactions.get(emoji)?.includes(user()!.id) ?? false;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      recordFavoriteEmoji(emoji);
+                      if (hasReacted()) {
+                        props.message!.unreact(emoji);
+                      } else {
+                        props.message!.react(emoji);
+                      }
+                    }}
+                    style={{
+                      padding: "6px 8px",
+                      "border-radius": "999px",
+                      border: hasReacted() ? "1px solid var(--md-sys-color-primary)" : "1px solid transparent",
+                      background: hasReacted() ? "color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent)" : "color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent)",
+                      cursor: "pointer",
+                      "font-size": "18px",
+                      "line-height": "1",
+                    }}
+                  >
+                    <UnicodeEmoji emoji={emoji} />
+                  </button>
+                );
+              }}
+            </For>
+          </div>
+          <ContextMenuDivider />
+        </Show>
         <Show when={props.message!.channel?.havePermission("SendMessage")}>
           <ContextMenuButton icon={MdReply} onClick={reply}>
             <Trans>Reply</Trans>

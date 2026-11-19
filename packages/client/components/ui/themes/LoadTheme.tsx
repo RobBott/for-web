@@ -3,6 +3,7 @@ import { createEffect, createMemo } from "solid-js";
 import { useClientLifecycle } from "@revolt/client";
 import { State } from "@revolt/client/Controller";
 import { useState } from "@revolt/state";
+import { THEME_PRESETS } from "@revolt/state/stores/Theme";
 
 import {
   createMaterialColourVariables,
@@ -61,6 +62,17 @@ export function LoadTheme() {
     const cssProps = getCssProps();
     for (const [key, value] of Object.entries(cssProps))
       document.body.style.setProperty(key, value);
+
+    const preset = THEME_PRESETS.find((p) => p.id === state.theme.themePreset);
+    if (preset && preset.id !== "default") {
+      document.body.style.setProperty("--md-sys-color-surface", preset.surface);
+      document.body.style.setProperty("--md-sys-color-surface-container-lowest", preset.surface);
+      document.body.style.setProperty("--md-sys-color-surface-container-low", preset.surfaceLow);
+      document.body.style.setProperty("--md-sys-color-surface-container", preset.surfaceLow);
+      document.body.style.setProperty("--md-sys-color-surface-container-high", preset.surfaceHigh);
+      document.body.style.setProperty("--md-sys-color-surface-container-highest", preset.surfaceHigh);
+      document.body.style.setProperty("--md-sys-color-on-surface", preset.onSurface);
+    }
   });
 
   //Set PWA theme color

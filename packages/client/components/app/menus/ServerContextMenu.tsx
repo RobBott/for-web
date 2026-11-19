@@ -9,6 +9,8 @@ import { useClient } from "@revolt/client";
 import { useDevice } from "@revolt/common";
 import { useModals } from "@revolt/modal";
 import { useState } from "@revolt/state";
+import { THEME_PRESETS } from "@revolt/state/stores/Theme";
+import MdPalette from "@material-design-icons/svg/outlined/palette.svg?component-solid";
 import { Column, Text, Time } from "@revolt/ui";
 
 import MdAlternateEmail from "@material-design-icons/svg/outlined/alternate_email.svg?component-solid";
@@ -331,6 +333,38 @@ export function ServerContextMenu(props: { server: Server }) {
           <Trans>Edit your identity</Trans>
         </ContextMenuButton>
       </Show>
+      <ContextMenuSubMenu
+        icon={MdPalette}
+        buttonContent={<Trans>Change theme</Trans>}
+      >
+        <For each={THEME_PRESETS}>
+          {(preset) => (
+            <ContextMenuButton
+              onClick={() => state.theme.setThemePreset(preset.id)}
+              actionSymbol={
+                state.theme.themePreset === preset.id
+                  ? MdRadioButtonChecked
+                  : MdRadioButtonUnchecked
+              }
+              _titleCase={false}
+            >
+              {preset.name}
+            </ContextMenuButton>
+          )}
+        </For>
+        <ContextMenuDivider />
+        <ContextMenuButton
+          icon={MdSettings}
+          onClick={() =>
+            openModal({
+              type: "settings",
+              config: "user",
+            })
+          }
+        >
+          <Trans>Appearance settings</Trans>
+        </ContextMenuButton>
+      </ContextMenuSubMenu>
       <Show when={permissionServerSettings()}>
         <ContextMenuButton icon={MdSettings} onClick={openSettings}>
           <Trans>Open server settings</Trans>

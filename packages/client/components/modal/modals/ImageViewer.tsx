@@ -34,6 +34,48 @@ export function ImageViewerModal(
     }
   }
 
+  let lastTapTime = 0;
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+
+  function getTouchDist(t1: Touch, t2: Touch) {
+    return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+  }
+
+  function onTouchStart(e: TouchEvent) {
+    if (e.touches.length === 2 && panzoom) {
+      pinchStartDist = getTouchDist(e.touches[0], e.touches[1]);
+      pinchStartScale = panzoom.getScale();
+    } else if (e.touches.length === 1 && panzoom) {
+      const now = Date.now();
+      if (now - lastTapTime < 280) {
+        const nextScale = panzoom.getScale() > 1.4 ? 1 : 2.5;
+        panzoom.zoomToPoint(nextScale, {
+          clientX: e.touches[0].clientX,
+          clientY: e.touches[0].clientY,
+        });
+        lastTapTime = 0;
+      } else {
+        lastTapTime = now;
+      }
+    }
+  }
+
+  function onTouchMove(e: TouchEvent) {
+    if (e.touches.length === 2 && panzoom && pinchStartDist > 0) {
+      e.preventDefault();
+      const dist = getTouchDist(e.touches[0], e.touches[1]);
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const nextScale = Math.min(5, Math.max(0.5, pinchStartScale * (dist / pinchStartDist)));
+      panzoom.zoomToPoint(nextScale, { clientX: midX, clientY: midY });
+    }
+  }
+
+  function onTouchEnd(e: TouchEvent) {
+    if (e.touches.length < 2) pinchStartDist = 0;
+  }
+
   function onMouseWheel(event: WheelEvent) {
     panzoom.zoom(panzoom.getScale() - event.deltaY / 1000);
   }
@@ -51,7 +93,11 @@ export function ImageViewerModal(
 
           panzoom = zoom;
 
+          ref.style.touchAction = "none";
           ref.addEventListener("pointerdown", onPointerDown);
+          ref.addEventListener("touchstart", onTouchStart, { passive: true });
+          ref.addEventListener("touchmove", onTouchMove, { passive: false });
+          ref.addEventListener("touchend", onTouchEnd);
           document.addEventListener("pointermove", panzoom.handleMove);
           document.addEventListener("pointerup", panzoom.handleUp);
           document.addEventListener("pointerleave", panzoom.handleUp);
@@ -60,6 +106,9 @@ export function ImageViewerModal(
 
           onCleanup(() => {
             ref.removeEventListener("pointerdown", onPointerDown);
+            ref.removeEventListener("touchstart", onTouchStart);
+            ref.removeEventListener("touchmove", onTouchMove);
+            ref.removeEventListener("touchend", onTouchEnd);
             document.removeEventListener("pointercancel", panzoom.handleUp);
             document.removeEventListener("pointermove", panzoom.handleMove);
             document.removeEventListener("pointerup", panzoom.handleUp);
